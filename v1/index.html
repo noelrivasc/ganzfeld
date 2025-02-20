@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ganzfeld Experiment</title>
+  <script src="dist/ganzfeld.js"></script>
+  <style type="text/css">
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: black;
+    }
+
+    #ganzfeld {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #ui {
+      position: absolute;
+      display: flex;
+      align-items: flex-end;
+      bottom: 0;
+      width: 100%;
+      left: 0;
+      height: 50px;
+      background-color: #0F0F0F;
+      border-top: 1px solid #111;
+    }
+
+    #ui .full-screen {
+      font-family: Courier, monospace;
+      color: #AAA;
+      font-size: 14px;
+      height: 100%;
+      width: auto;
+      padding: 0 15px;
+      background-color: rgba(255, 255, 255, .1);
+    }
+  </style>
+</head>
+<body>
+  <div id="ganzfeld"></div>
+  <div id="ui"><button class="full-screen">go full screen</button></div>
+</canvas></body>
+</html>

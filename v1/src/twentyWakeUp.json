@@ -1,0 +1,48 @@
+{
+  "explanation": "Each state is an array of 5 elements that represent steps in the gradient. Each element is composed by a position which is a floating point number from 0 to 1, and a color expressed as a CSS compatible string.",
+  "initialState": [
+    {"position": 0, "color": [0, 0, 0]},
+    {"position": 0, "color": [0, 0, 0]},
+    {"position": 0, "color": [0, 0, 0]},
+    {"position": 0, "color": [0, 0, 0]},
+    {"position": 1, "color": [0, 0, 0]}
+  ],
+  "steps": {
+    "2000": [
+      {"position": 0, "color": [0, 0, 0]},
+      {"position": 0, "color": [0, 0, 0]},
+      {"position": 0, "color": [0, 0, 0]},
+      {"position": 0, "color": [0, 0, 0]},
+      {"position": 1, "color": [100, 0, 0]}
+    ],
+    "4000": [
+    {"position": 0, "color": [0, 0, 0]},
+    {"position": 0, "color": [0, 0, 0]},
+    {"position": 0, "color": [0, 0, 0]},
+    {"position": 0, "color": [0, 0, 0]},
+      {"position": 1, "color": [128, 128, 0]}
+    ],
+    "10000": [
+      {"position": 0, "color": [0, 0, 0]},
+      {"position": 0, "color": [0, 0, 0]},
+      {"position": 0, "color": [0, 0, 0]},
+      {"position": 0, "color": [0, 0, 0]},
+      {"position": 1, "color": [100, 128, 128]}
+    ],
+    "15000": [
+      {"position": 0, "color": [0, 0, 0]},
+      {"position": 0, "color": [0, 0, 0]},
+      {"position": 0, "color": [0, 0, 0]},
+      {"position": 0, "color": [0, 0, 0]},
+      {"position": 1, "color": [100, 0, 128]}
+    ]
+  },
+  "endState": [
+    {"position": 0, "color": [0, 0, 0]},
+    {"position": 0, "color": [0, 0, 0]},
+    {"position": 0, "color": [0, 0, 0]},
+    {"position": 0, "color": [0, 0, 0]},
+    {"position": 0, "color": [0, 0, 0]}
+  ],
+  "endTime": 20000
+}
