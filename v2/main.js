@@ -1,4 +1,5 @@
 import { addControls } from "./ui.js";
+import { initialize as initializeGanzfeld, load, togglePlay } from "./ganzfeld.js";
 
 const mockUiEventHandler = (eventName) => {
     return (payload) => {
@@ -10,10 +11,24 @@ const mockUiEventHandler = (eventName) => {
     }
 }
 
+const showBaseUrl = './data/';
+const loadShow = async (eventPayload) => {
+    if(!eventPayload.value) {
+        console.log('TODO: disable show on empty selection.');
+        return;
+    }
+
+    await load({
+        imageUrl: showBaseUrl + eventPayload.value + '.png',
+        configurationUrl: showBaseUrl + eventPayload.value
+    })
+}
+
+initializeGanzfeld();
 addControls('controls', {
-    load: mockUiEventHandler('load'),
+    load: loadShow,
     toggleFullScreen: mockUiEventHandler('toggleFullScreen'),
-    togglePlay: mockUiEventHandler('togglePlay'),
+    togglePlay,
     rewind: mockUiEventHandler('rewind'),
     goToPosition: mockUiEventHandler('goToPosition'),
     setSpeed: mockUiEventHandler('setSpeed'),

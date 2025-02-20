@@ -84,7 +84,7 @@ const uiMarkup = `
         </button>
       </div>
       <div class="controls__control-wrapper controls__control-wrapper--grow is-disabled">
-          <input type="range" class="controls__range" min="0" max="1000" value="0" data-action="goToPosition">
+          <input type="range" class="controls__range" min="0" max="100" value="0" data-action="goToPosition">
       </div>
       <div class="controls__control-wrapper is-disabled">
         <select class="controls__select" aria-label="Playback Speed" name="playback-speed" data-action="setSpeed">
