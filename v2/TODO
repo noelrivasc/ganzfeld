@@ -1,0 +1,4 @@
+- Design ganzfeld module(s) and their API; devise connection to UI
+- Implement control API in module, and connect UI to it
+- Implement module(s)
+- Design and implement a way to hide the UI controls
