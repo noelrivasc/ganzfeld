@@ -2,23 +2,34 @@
 // * MODULE CONSTANTS AND STATE*********************
 // *************************************************
 let play = false;
-let currentPosition = 0; // range from 0 to 100, float
-let referenceImage;
-let imageCanvas;
-let imagePixelData;
+let previousStepTime;
+let lastPosition = 0; // range from 0 to 100, float
+let speedMultiplier = 1;
 
+// Loaded show configuration
+let referenceImageCanvas;
+let referenceImagePixelData;
 let timeConfiguration;
+
+// Drawing to screen
+let showCanvas;
+let showCanvas2dContext;
 
 // *************************************************
 // * MODULE FUNCTIONS ******************************
 // *************************************************
 export const initialize = () => {
-  imageCanvas = document.createElement('canvas');
+  referenceImageCanvas = document.createElement('canvas');
+  showCanvas = document.createElement('canvas');
+  showCanvas.height = 400; // TODO: fill screen
+  showCanvas.width = 400;
+  showCanvas2dContext = showCanvas.getContext('2d');
+  document.getElementById('ganzfeld').appendChild(showCanvas);
 }
 
 export const load = async (payload) => {
   try {
-    imagePixelData = await loadImage(payload.imageUrl);
+    referenceImagePixelData = await loadImage(payload.imageUrl);
     timeConfiguration = await loadTimeConfiguration(payload.configurationUrl);
     validateConfiguration();
   } catch (error) {
@@ -27,7 +38,7 @@ export const load = async (payload) => {
 }
 
 function validateConfiguration() {
-  const expectedFrames = (imagePixelData.length / 4 / 2) - 2;
+  const expectedFrames = (referenceImagePixelData.length / 4 / 2) - 2;
   if (timeConfiguration.frames.length !== expectedFrames) {
     throw new Error(`Expected ${expectedFrames} but found ${timeConfiguration.frames.length} instead.`);
   }
@@ -60,9 +71,10 @@ function loadImage(imageUrl) {
     img.crossOrigin = "Anonymous"; // Important for CORS (if needed)
 
     img.onload = () => {
-      const ctx = imageCanvas.getContext('2d');
-      imageCanvas.width = img.width;
-      imageCanvas.height = img.height;
+      const ctx = referenceImageCanvas.getContext('2d');
+      referenceImageCanvas.width = img.width;
+      referenceImageCanvas.height = img.height;
+      ctx.clearRect(0, 0, img.width, img.height);
       ctx.drawImage(img, 0, 0);
 
       const pixelData = ctx.getImageData(0, 0, img.width, img.height).data;
@@ -74,10 +86,28 @@ function loadImage(imageUrl) {
   });
 }
 
+function drawStep(position) {
+  console.log(`Drawing step: ${position}`);
+}
+
 const step = (time) => {
   if (!play) return;
 
-  // TODO: do something!
+  const getNewPosition = () => {
+    const timeElapsed = time - previousStepTime;
+    const newPosition = lastPosition + (timeElapsed / timeConfiguration.duration * 100 * speedMultiplier);
+    if (newPosition >= 100) {
+      play = false;
+      return 100;
+    }
+    return newPosition;
+  }
+
+  let newPosition = previousStepTime ? getNewPosition() : lastPosition;
+  drawStep(newPosition);
+  lastPosition = newPosition;
+
+  previousStepTime = time;
 
   window.requestAnimationFrame(step);
 }
@@ -86,5 +116,7 @@ export const togglePlay = () => {
   play = !play;
   if (play) {
     window.requestAnimationFrame(step);
+  } else {
+    previousStepTime = undefined;
   }
 }
