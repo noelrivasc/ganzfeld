@@ -15,6 +15,9 @@ let timeConfiguration;
 let sceneCanvas;
 let sceneCanvas2dContext;
 
+// Event listeners
+const listeners = {};
+
 // *************************************************
 // * MODULE FUNCTIONS ******************************
 // *************************************************
@@ -47,21 +50,39 @@ function validateConfiguration() {
 async function loadTimeConfiguration(configurationFileUrl) {
   const response = await fetch(configurationFileUrl);
   const contents = await response.text();
-  console.log(contents);
   const lines = contents.split('\n');
 
   // The first line of the file defines the duration
   // of the scene, in milliseconds.
   const duration = parseInt(lines.shift());
 
-  // The rest of the lines define the positions of the
-  // frames in time, in a range from 0 to 100
-  const frames = lines.map(line => parseFloat(line))
+  if (lines.length === 0) {
+    // if only the duration is present, the steps are distributed linearly
+    const width = referenceImageCanvas.width; // TODO pass as param? ugly relying on globals everywhere.
+    console.log(width)
+    const stepSize = 100 / (width - 1);
+    let currentStep = 0;
 
-  return {
-    duration,
-    frames,
-  };
+    const frames = [];
+    for (let i = 0; i < width-2; i++) {
+      currentStep += stepSize;
+      frames.push(currentStep);
+    }
+
+    return {
+      duration,
+      frames,
+    }
+  } else {
+    // The rest of the lines define the positions of the
+    // frames in time, in a range from 0 to 100
+    const frames = lines.map(line => parseFloat(line))
+
+    return {
+      duration,
+      frames,
+    };
+  }
 }
 
 function loadImage(imageUrl) {
@@ -167,14 +188,14 @@ const step = (time) => {
     const timeElapsed = time - previousStepTime;
     const newPosition = lastPosition + (timeElapsed / timeConfiguration.duration * 100 * speedMultiplier);
     if (newPosition >= 100) {
-      play = false;
-      return 100;
+      return 0;
     }
     return newPosition;
   }
 
   let newPosition = previousStepTime ? getNewPosition() : lastPosition;
   drawStep(newPosition);
+  triggerEvent('updatePosition', newPosition);
   lastPosition = newPosition;
 
   previousStepTime = time;
@@ -188,5 +209,53 @@ export const togglePlay = () => {
     window.requestAnimationFrame(step);
   } else {
     previousStepTime = undefined;
+  }
+}
+
+export const rewind = () => {
+  lastPosition = 0;
+  previousStepTime = undefined;
+}
+
+export const goToPosition = (payload) => {
+  play = false;
+  lastPosition = payload.value;
+  previousStepTime = undefined;
+  drawStep(lastPosition);
+}
+
+export const toggleFullScreen = () => {
+  let fsElement = document.getElementById('ganzfeld');
+  if (!document.fullscreenElement) {
+    fsElement.requestFullscreen().then(() => {
+      sceneCanvas.height = window.innerHeight;
+      sceneCanvas.width = window.innerWidth;
+    })
+  } else if (document.exitFullscreen) {
+    document.exitFullscreen();
+  }
+}
+
+export const setSpeed = (payload) => {
+  speedMultiplier = payload.value;
+}
+
+// *************************************************
+// * EVENT MANAGEMENT ******************************
+// *************************************************
+
+export const addEventListener = (eventType, handler) => {
+  if (!listeners[eventType]) {
+    listeners[eventType] = [];
+  }
+
+  listeners[eventType].push(handler);
+}
+
+const triggerEvent = (eventType, payload) => {
+  if (listeners[eventType]) {
+    listeners[eventType].forEach((listener) => {
+      listener(payload);
+    })
   }
 }

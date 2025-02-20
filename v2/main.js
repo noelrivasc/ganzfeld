@@ -1,5 +1,5 @@
-import { addControls } from "./ui.js";
-import { initialize as initializeGanzfeld, load, togglePlay } from "./ganzfeld.js";
+import { addControls, updatePosition } from "./ui.js";
+import { initialize as initializeGanzfeld, addEventListener, load, togglePlay, toggleFullScreen, setSpeed, rewind, goToPosition } from "./ganzfeld.js";
 
 const mockUiEventHandler = (eventName) => {
     return (payload) => {
@@ -25,11 +25,20 @@ const loadScene = async (eventPayload) => {
 }
 
 initializeGanzfeld();
-addControls('controls', {
+addControls('controls',
+  {
     load: loadScene,
-    toggleFullScreen: mockUiEventHandler('toggleFullScreen'),
+    toggleFullScreen,
     togglePlay,
-    rewind: mockUiEventHandler('rewind'),
-    goToPosition: mockUiEventHandler('goToPosition'),
-    setSpeed: mockUiEventHandler('setSpeed'),
-});
+    rewind,
+    goToPosition,
+    setSpeed,
+  },
+  [
+    ['test', 'System test'],
+    ['rainbow-1', 'Rainbow 1'],
+    ['blue-green-1', 'Blue Green 1'],
+  ]
+);
+
+addEventListener('updatePosition', updatePosition);

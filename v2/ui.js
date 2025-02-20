@@ -65,7 +65,6 @@ const uiMarkup = `
       <div class="controls__control-wrapper">
         <select class="controls__select" aria-label="Select show to load" name="load-show" data-action="load">
           <option value="">Load:</option>
-          <option value="test">System test</option>
         </select>
       </div>
       <div class="controls__control-wrapper is-disabled">
@@ -99,15 +98,22 @@ const uiMarkup = `
   </div>
 `;
 
-export const addControls = (containerId, eventHandlers) => {
+/**
+ * Adds the control UI to the document, and sets
+ * up events
+ * @param containerId String, the existing container to append the controls to
+ * @param uiEventHandlers Object, a map of event names to functions: load, toggleFullScreen, togglePlay, rewind, goToPosition, setSpeed
+ * @param scenesList Array of tuples, each tuple with the scene id and its label, ie [['test', 'Test scene']]
+ */
+export const addControls = (containerId, uiEventHandlers, scenesList) => {
   const container = document.getElementById(containerId);
   container.innerHTML = uiMarkup;
 
   const buttons = container.getElementsByClassName("controls__button");
 
   const handleAction = (action, payload) => {
-    if(eventHandlers[action]) {
-      eventHandlers[action](payload);
+    if(uiEventHandlers[action]) {
+      uiEventHandlers[action](payload);
     } else {
       console.warn(`Event handler not defined for button with action: ${action}`);
     }
@@ -139,4 +145,18 @@ export const addControls = (containerId, eventHandlers) => {
       handleAction(action, {value});
     })
   })
+
+  // Populate the scenes select
+  const scenesSelect = container.querySelector(".controls__select[data-action=load]");
+  scenesList.forEach((scene) => {
+    const option = document.createElement('option');
+    option.appendChild(document.createTextNode(scene[1]));
+    option.setAttribute('value', scene[0]);
+    scenesSelect.appendChild(option);
+  })
+}
+
+export const updatePosition = (position) => {
+  const scenesSelect = document.querySelector(".controls__range[data-action=goToPosition]");
+  scenesSelect.setAttribute("value", position);
 }
