@@ -92,7 +92,7 @@ function loadImage(imageUrl) {
  */
 function drawStep(position) {
   const { fromPosition, toPosition, fromIndex, toIndex } = getFromAndToFrames(timeConfiguration.frames, position);
-  const positionWithinFrames = (toPosition - fromPosition) / 100;
+  const positionWithinFrames = (position - fromPosition) / (toPosition - fromPosition);
   const fromTopColor = getColorAtOffset(referenceImagePixelData, fromIndex * 4);
   const toTopColor = getColorAtOffset(referenceImagePixelData, toIndex * 4);
   const fromBottomColor = getColorAtOffset(referenceImagePixelData, (fromIndex * 4) + (referenceImageCanvas.width * 4));
