@@ -6,25 +6,25 @@ let previousStepTime;
 let lastPosition = 0; // range from 0 to 100, float
 let speedMultiplier = 1;
 
-// Loaded show configuration
+// Loaded scene configuration
 let referenceImageCanvas;
 let referenceImagePixelData;
 let timeConfiguration;
 
 // Drawing to screen
-let showCanvas;
-let showCanvas2dContext;
+let sceneCanvas;
+let sceneCanvas2dContext;
 
 // *************************************************
 // * MODULE FUNCTIONS ******************************
 // *************************************************
 export const initialize = () => {
   referenceImageCanvas = document.createElement('canvas');
-  showCanvas = document.createElement('canvas');
-  showCanvas.height = 400; // TODO: fill screen
-  showCanvas.width = 400;
-  showCanvas2dContext = showCanvas.getContext('2d');
-  document.getElementById('ganzfeld').appendChild(showCanvas);
+  sceneCanvas = document.createElement('canvas');
+  sceneCanvas.height = 400; // TODO: fill screen
+  sceneCanvas.width = 400;
+  sceneCanvas2dContext = sceneCanvas.getContext('2d');
+  document.getElementById('ganzfeld').appendChild(sceneCanvas);
 }
 
 export const load = async (payload) => {
@@ -50,17 +50,16 @@ async function loadTimeConfiguration(configurationFileUrl) {
   console.log(contents);
   const lines = contents.split('\n');
 
-  // Take first line, split by space and populate duration and fragments
-  let [duration, fragments] = lines.shift().split(' ');
-  duration = parseInt(duration);
-  fragments = parseInt(fragments);
+  // The first line of the file defines the duration
+  // of the scene, in milliseconds.
+  const duration = parseInt(lines.shift());
 
-  // Convert the rest of the lines to an array of numbers
-  const frames = lines.map(line => parseInt(line))
+  // The rest of the lines define the positions of the
+  // frames in time, in a range from 0 to 100
+  const frames = lines.map(line => parseFloat(line))
 
   return {
     duration,
-    fragments,
     frames,
   };
 }
@@ -86,8 +85,79 @@ function loadImage(imageUrl) {
   });
 }
 
+/**
+ * Does the interpolation for the current position
+ * and draws the gradient on the scene canvas
+ * @param position Number, a value in the range 0-100
+ */
 function drawStep(position) {
-  console.log(`Drawing step: ${position}`);
+  const { fromPosition, toPosition, fromIndex, toIndex } = getFromAndToFrames(timeConfiguration.frames, position);
+  const positionWithinFrames = (toPosition - fromPosition) / 100;
+  const fromTopColor = getColorAtOffset(referenceImagePixelData, fromIndex * 4);
+  const toTopColor = getColorAtOffset(referenceImagePixelData, toIndex * 4);
+  const fromBottomColor = getColorAtOffset(referenceImagePixelData, (fromIndex * 4) + (referenceImageCanvas.width * 4));
+  const toBottomColor = getColorAtOffset(referenceImagePixelData, (toIndex * 4) + (referenceImageCanvas.width * 4));
+
+  const topColor = interpolateColor(fromTopColor, toTopColor, positionWithinFrames);
+  const bottomColor = interpolateColor(fromBottomColor, toBottomColor, positionWithinFrames);
+
+  const gradient = sceneCanvas2dContext.createLinearGradient(0, 0, 0, sceneCanvas.height);
+  gradient.addColorStop(0, `rgb(${topColor.r}, ${topColor.g}, ${topColor.b}, ${topColor.a})`);
+  gradient.addColorStop(1, `rgb(${bottomColor.r}, ${bottomColor.g}, ${bottomColor.b}, ${bottomColor.a})`);
+
+  sceneCanvas2dContext.fillStyle = gradient;
+  sceneCanvas2dContext.fillRect(0, 0, sceneCanvas.width, sceneCanvas.height);
+}
+
+function interpolateColor(color1, color2, position) {
+  return {
+    r: color1.r + ((color2.r - color1.r) * position),
+    g: color1.g + ((color2.g - color1.g) * position),
+    b: color1.b + ((color2.b - color1.b) * position),
+    a: color1.a + ((color2.a - color1.a) * position),
+  }
+}
+
+/**
+ * @param imageData an ImageData array which has the pixels in the reference image
+ * @param offset The offset in the array from which the color is obtained
+ */
+function getColorAtOffset(imageData, offset) {
+  return {
+    r: imageData[offset],
+    g: imageData[offset + 1],
+    b: imageData[offset + 2],
+    a: imageData[offset + 3],
+  }
+}
+
+function getFromAndToFrames(configurationFrames, position) {
+  let previousFrame;
+  let frameIndex = 1; // the initial  frame is implicit
+  let frames = {};
+
+  configurationFrames.forEach((frame) => {
+    if (previousFrame === undefined && position <= frame) {
+      frames.fromPosition = 0;
+      frames.toPosition = frame;
+      frames.fromIndex = 0;
+      frames.toIndex = frameIndex;
+    } else if (position > previousFrame &&  position < frame) {
+      frames.fromPosition = previousFrame;
+      frames.toPosition = frame;
+      frames.fromIndex = frameIndex - 1;
+      frames.toIndex = frameIndex;
+    } else if (position > frame) {
+      frames.fromPosition = frame;
+      frames.toPosition = 100;
+      frames.fromIndex = frameIndex;
+      frames.toIndex = frameIndex + 1;
+    }
+
+    previousFrame = frame;
+    frameIndex++;
+  });
+  return frames;
 }
 
 const step = (time) => {

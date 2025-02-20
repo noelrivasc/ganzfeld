@@ -11,22 +11,22 @@ const mockUiEventHandler = (eventName) => {
     }
 }
 
-const showBaseUrl = './data/';
-const loadShow = async (eventPayload) => {
+const sceneBaseUrl = './data/';
+const loadScene = async (eventPayload) => {
     if(!eventPayload.value) {
-        console.log('TODO: disable show on empty selection.');
+        console.log('TODO: disable scene on empty selection.');
         return;
     }
 
     await load({
-        imageUrl: showBaseUrl + eventPayload.value + '.png',
-        configurationUrl: showBaseUrl + eventPayload.value
+        imageUrl: sceneBaseUrl + eventPayload.value + '.png',
+        configurationUrl: sceneBaseUrl + eventPayload.value
     })
 }
 
 initializeGanzfeld();
 addControls('controls', {
-    load: loadShow,
+    load: loadScene,
     toggleFullScreen: mockUiEventHandler('toggleFullScreen'),
     togglePlay,
     rewind: mockUiEventHandler('rewind'),
