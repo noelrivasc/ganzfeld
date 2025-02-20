@@ -21,8 +21,8 @@ let sceneCanvas2dContext;
 export const initialize = () => {
   referenceImageCanvas = document.createElement('canvas');
   sceneCanvas = document.createElement('canvas');
-  sceneCanvas.height = 400; // TODO: fill screen
-  sceneCanvas.width = 400;
+  sceneCanvas.height = window.innerHeight;
+  sceneCanvas.width = window.innerWidth;
   sceneCanvas2dContext = sceneCanvas.getContext('2d');
   document.getElementById('ganzfeld').appendChild(sceneCanvas);
 }
